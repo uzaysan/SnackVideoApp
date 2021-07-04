@@ -1,5 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {Dimensions, RefreshControl, ActivityIndicator} from 'react-native';
+import {
+  Dimensions,
+  RefreshControl,
+  ActivityIndicator,
+  View,
+} from 'react-native';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import {colors_light} from '../values/Colors';
 import Post from './Post';
@@ -38,7 +43,7 @@ const PostRecyclerView = ({posts, onRefresh, style, refreshing}) => {
   const rowRenderer = (type, data) => {
     switch (type) {
       case ViewTypes.TYPE_VIDEO:
-        return <Post post={data} />;
+        return <Post item={data} />;
       case ViewTypes.TYPE_LOAD:
         return (
           <View

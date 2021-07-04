@@ -23,13 +23,12 @@ const HomeScreen = props => {
   };
 
   const getPosts = async () => {
-    const posts = await PostApi.getHomeObjects(date.current);
-    console.log(posts);
+    const result = await PostApi.getHomeObjects(date.current);
     if (refreshing) setRefreshing(false);
-    date.current = posts.date;
+    date.current = result.date;
     loading.current = false;
-    hasMore.current = posts.hasMore;
-    dispatch(refreshHomeObjects(posts));
+    hasMore.current = result.hasMore;
+    dispatch(refreshHomeObjects(result.posts));
   };
 
   useEffect(() => {
@@ -58,10 +57,17 @@ const HomeScreen = props => {
           style={{
             fontWeight: 'bold',
             fontSize: 16,
+            color: isDarkMode ? colors_dark.textColor : colors_light.textColor,
           }}>
           {strings_eng.home}
         </Text>
       </View>
+      <PostRecyclerView
+        style={{flex: 1}}
+        posts={posts}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
+      />
     </View>
   );
 };

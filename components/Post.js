@@ -1,5 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import {getRelativeTime} from '../Helper/Functions';
+import React, {useState, useEffect} from 'react';
 import {
   useColorScheme,
   View,
@@ -15,14 +16,17 @@ import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import Entypo from 'react-native-vector-icons/dist/Entypo';
 import {likeUnlikePost} from '../store/Post/action';
 
+import MentionHashtagTextView from './MentionHashtagTextView';
+import VideoPlayer from './VideoPlayer';
+
 const Post = ({item}) => {
   const isDarkMode = useColorScheme() === 'dark';
   const dispatch = useDispatch();
   const iconColor = isDarkMode ? 'white' : 'black';
   const navigate = useNavigation();
   const post = useSelector(state => state.post.postTree[item.objectId]);
-
   const [collapsed, setCollapsed] = useState(true);
+  const [liked, setLiked] = useState(post.liked);
   const collapseExpandText = () => {
     if (collapsed) {
       setCollapsed(false);
@@ -32,7 +36,8 @@ const Post = ({item}) => {
   };
 
   const likeClick = () => {
-    if (post?.objectId) dispatch(likeUnlikePost(post.objectId));
+    setLiked(pre => !pre);
+    dispatch(likeUnlikePost(post.objectId));
   };
 
   const mentionHashtagClick = text => {
@@ -42,6 +47,7 @@ const Post = ({item}) => {
 
   useEffect(() => {
     setCollapsed(true);
+    setLiked(post.liked);
   }, [post]);
 
   return (
@@ -73,7 +79,7 @@ const Post = ({item}) => {
                   : colors_light.textColor,
                 fontWeight: 'bold',
               }}>
-              {post.user.namesurname}
+              {post.user.name}
             </Text>
             <Text style={styles.usernameText}>@{post.user.username}</Text>
           </View>
@@ -110,11 +116,11 @@ const Post = ({item}) => {
         style={{
           ...styles.video,
           aspectRatio:
-            post.media[0].width / post.media[0].height < 0.75
+            post.media.width / post.media.height < 0.75
               ? 0.75
-              : post.media[0].width / post.media[0].height > 1.25
+              : post.media.width / post.media.height > 1.25
               ? 1.25
-              : post.media[0].width / post.media[0].height,
+              : post.media.width / post.media.height,
         }}
         id={post.id}
         uri={post.media.media.url}
@@ -142,7 +148,7 @@ const Post = ({item}) => {
               style={{marginLeft: 10}}
               name="heart"
               size={28}
-              color={post.liked ? 'red' : colors_dark.neutralColor}
+              color={liked ? 'red' : colors_dark.neutralColor}
             />
 
             <Text
@@ -152,7 +158,7 @@ const Post = ({item}) => {
                 fontWeight: 'bold',
                 color: colors_dark.neutralColor,
               }}>
-              {post.liked ? post.likenumber + 1 : post.likenumber}
+              {liked ? post.likes + 1 : post.likes}
             </Text>
           </View>
         </TouchableHighlight>
@@ -176,14 +182,14 @@ const Post = ({item}) => {
                 fontWeight: 'bold',
                 color: colors_dark.neutralColor,
               }}>
-              {post.commentnumber}
+              {post.comments}
             </Text>
           </View>
         </TouchableHighlight>
 
         <View style={{flex: 3, alignItems: 'center'}}>
           <Text style={{color: colors_dark.neutralColor}}>
-            {post.createdAt}
+            {getRelativeTime(new Date(post.createdAt))}
           </Text>
         </View>
       </View>
@@ -209,7 +215,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors_light.neutralColor,
     aspectRatio: 1,
     marginLeft: 5,
-    borderRadius: 8,
+    borderRadius: 20,
   },
   nameUsernameLayout: {
     alignItems: 'center',

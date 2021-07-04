@@ -72,11 +72,11 @@ const VideoPlayer = props => {
     <Entypo
       style={{
         position: 'absolute',
-        top: 5,
-        left: 7,
+        top: 2,
+        left: 2,
       }}
       name="controller-play"
-      size={20}
+      size={30}
       color="white"
     />
   );
