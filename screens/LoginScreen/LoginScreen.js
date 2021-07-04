@@ -9,10 +9,29 @@ import {UserApi} from '../../api/User';
 import {useDispatch} from 'react-redux';
 import {loginAction} from '../../store/Auth/actions';
 import {store} from '../../store/store';
+import {CommonActions} from '@react-navigation/native';
 
-const LoginScreen = props => {
+const LoginScreen = ({navigation}) => {
   const isDarkMode = useColorScheme() === 'dark';
-
+  if (store.getState()?.auth?.currentUser?.sessionToken) {
+    // Navigate to main menu
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{name: 'Tabs'}],
+      }),
+    );
+    //return emoty view
+    return (
+      <View
+        style={{
+          backgroundColor: isDarkMode
+            ? colors_dark.backgroundColor
+            : colors_light.backgroundColor,
+        }}
+      />
+    );
+  }
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
@@ -32,6 +51,12 @@ const LoginScreen = props => {
     }
     console.log(user);
     dispatch(loginAction(user));
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{name: 'Tabs'}],
+      }),
+    );
   };
 
   return (

@@ -6,4 +6,5 @@ export const strings_eng = {
   email: 'Email',
   name: 'Name',
   donthaveanaccount: 'Dont have an account?',
+  home: 'Home',
 };
