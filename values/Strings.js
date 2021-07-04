@@ -5,4 +5,5 @@ export const strings_eng = {
   register: 'Register',
   email: 'Email',
   name: 'Name',
+  donthaveanaccount: 'Dont have an account?',
 };

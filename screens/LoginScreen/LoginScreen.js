@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useColorScheme, View} from 'react-native';
+import {useColorScheme, View, Text} from 'react-native';
 import {colors_dark, colors_light} from '../../values/Colors';
 import {strings_eng} from '../../values/Strings';
 import EditTextWithIcon from './EditTextWithIcon';
@@ -48,6 +48,7 @@ const LoginScreen = props => {
       <View
         style={{
           padding: 5,
+          borderRadius: 15,
           alignItems: 'center',
           justifyContent: 'center',
           width: '95%',
@@ -97,6 +98,7 @@ const LoginScreen = props => {
             width: '95%',
             height: 50,
             marginTop: 10,
+            marginBottom: 10,
             borderRadius: 15,
             alignItems: 'center',
             justifyContent: 'center',
@@ -111,6 +113,33 @@ const LoginScreen = props => {
           }}
           progressColor={'white'}
           buttonText={strings_eng.login}
+        />
+        <Text
+          style={{
+            color: isDarkMode ? colors_dark.textColor : colors_light.textColor,
+            margin: 25,
+          }}>
+          {strings_eng.donthaveanaccount}
+        </Text>
+        <ButtonWithProgress
+          style={{
+            width: '95%',
+            height: 40,
+            marginTop: 10,
+            marginBottom: 10,
+            borderRadius: 15,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: colors_dark.blue,
+          }}
+          underlayColor={'#98cbfa'}
+          onPress={login}
+          textStyle={{
+            color: 'white',
+            fontWeight: 'bold',
+          }}
+          progressColor={'white'}
+          buttonText={strings_eng.register}
         />
       </View>
     </View>
