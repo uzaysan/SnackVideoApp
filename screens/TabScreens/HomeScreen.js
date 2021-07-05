@@ -5,7 +5,8 @@ import {strings_eng} from '../../values/Strings';
 import {useSelector, useDispatch} from 'react-redux';
 import PostRecyclerView from '../../components/PostRecyclerView';
 import {PostApi} from '../../api/Post';
-import {refreshHomeObjects, addHomeObjects} from '../../store/Post/action';
+import {addPosts} from '../../store/Post/action';
+import {addUsers} from '../../store/User/action';
 
 const HomeScreen = props => {
   const date = useRef({iso: ''});
@@ -14,9 +15,9 @@ const HomeScreen = props => {
 
   const isDarkMode = useColorScheme() === 'dark';
   const dispatch = useDispatch();
-  const posts = useSelector(state => state.post.home);
+  const [posts, setPosts] = useState([]);
 
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(true);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -28,15 +29,28 @@ const HomeScreen = props => {
     loading.current = true;
     const result = await PostApi.getHomeObjects(date.current.iso);
     date.current = result.date;
-    loading.current = false;
     hasMore.current = result.hasMore;
-    if (isRefresh) dispatch(refreshHomeObjects(result.posts));
-    else dispatch(addHomeObjects(result.posts));
+    const userList = [];
+    const postList = [];
+    const forList = [];
+    for (const post of result.posts) {
+      forList.push({type: 'Post', objectId: post.objectId});
+      userList.push({...post.user});
+      post.user = post.user.objectId;
+      postList.push(post);
+    }
+    dispatch(addUsers(userList));
+    dispatch(addPosts(postList));
+    setPosts(posts => {
+      if (isRefresh) return forList;
+      return posts.concat(forList);
+    });
     setRefreshing(false);
+    loading.current = false;
   };
 
   useEffect(() => {
-    getPosts(true);
+    getPosts();
   }, []);
 
   return (

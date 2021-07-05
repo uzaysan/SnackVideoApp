@@ -8,4 +8,11 @@ export const strings_eng = {
   donthaveanaccount: 'Dont have an account?',
   home: 'Home',
   explore: 'Explore',
+  profile: 'Profile',
+  views: 'Views',
+  subscribers: 'Subscribers',
+  editprofile: 'Edit profile',
+  subscribe: 'Subscribe',
+  unsubscribe: 'Unsubscribe',
+  comments: 'Comments',
 };

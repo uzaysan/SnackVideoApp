@@ -2,30 +2,57 @@ import React, {useState, useEffect, useRef} from 'react';
 import {View, useColorScheme, Text} from 'react-native';
 import {colors_dark, colors_light} from '../../values/Colors';
 import {strings_eng} from '../../values/Strings';
-import {useSelector, useDispatch} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import GridRecyclerView from '../../components/GridRecyclerView';
 import {PostApi} from '../../api/Post';
-import {setGridExplorePosts} from '../../store/Post/action';
+import {addPosts} from '../../store/Post/action';
+import {addUsers} from '../../store/User/action';
 
 const ExploreScreen = props => {
   const isDarkMode = useColorScheme() === 'dark';
   const loading = useRef(false);
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(true);
   const dispatch = useDispatch();
-  const posts = useSelector(state => state.post.exploreGrid);
-  console.log('GridPosts : ' + posts);
+
+  const [posts, setPosts] = useState([]);
+
   const onRefresh = () => {
     setRefreshing(true);
     getPosts(true);
+  };
+
+  const arrangeItemsToGrid = list => {
+    let tmpList = [];
+
+    for (let i = 0; i < list.length; i = i + 3) {
+      if (list.length - (i + 1) < 3) {
+        continue;
+      }
+      tmpList.push({
+        objectId: Math.random().toString(),
+        data: [list[i], list[i + 1], list[i + 2]],
+      });
+    }
+    return tmpList;
   };
 
   const getPosts = async () => {
     if (loading.current) return;
     loading.current = true;
     try {
-      const result = await PostApi.getHomeObjects(null);
-      console.log(result);
-      dispatch(setGridExplorePosts(result.posts));
+      const result = await PostApi.getExplorePosts();
+      const userList = [];
+      const postList = [];
+      const forList = [];
+      for (const post of result.posts) {
+        forList.push({type: 'Post', objectId: post.objectId});
+        userList.push({...post.user});
+        post.user = post.user.objectId;
+        postList.push(post);
+      }
+      dispatch(addUsers(userList));
+      dispatch(addPosts(postList));
+      setPosts(arrangeItemsToGrid(forList));
     } catch (err) {
       console.log('error ' + err);
     }
@@ -44,6 +71,7 @@ const ExploreScreen = props => {
         backgroundColor: isDarkMode
           ? colors_dark.backgroundColor
           : colors_light.backgroundColor,
+        overflow: 'hidden',
       }}>
       <View
         style={{

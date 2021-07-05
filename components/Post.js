@@ -14,18 +14,20 @@ import {colors_dark, colors_light} from '../values/Colors';
 
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import Entypo from 'react-native-vector-icons/dist/Entypo';
-import {likeUnlikePost} from '../store/Post/action';
+import {likeToggle} from '../store/Post/action';
 
 import MentionHashtagTextView from './MentionHashtagTextView';
 import VideoPlayer from './VideoPlayer';
+import {PostApi} from '../api/Post';
 
 const Post = ({item}) => {
   const isDarkMode = useColorScheme() === 'dark';
   const dispatch = useDispatch();
   const iconColor = isDarkMode ? 'white' : 'black';
-  const navigate = useNavigation();
+  const navigation = useNavigation();
 
-  const post = useSelector(state => state.post.postTree[item.objectId]);
+  const post = useSelector(state => state.post[item.objectId]);
+  const user = useSelector(state => state.user[post.user]);
 
   const [collapsed, setCollapsed] = useState(true);
   const [liked, setLiked] = useState(post.liked);
@@ -37,14 +39,23 @@ const Post = ({item}) => {
     }
   };
 
+  const onProfileClick = () => {
+    navigation.push('Profile', {userId: user.objectId});
+  };
+
+  const onCommentsClick = () => {
+    navigation.push('CommentsScreen', {post: item});
+  };
+
   const likeClick = () => {
+    PostApi.likeToggle(post.objectId);
     setLiked(pre => !pre);
-    dispatch(likeUnlikePost(post.objectId));
+    dispatch(likeToggle(post.objectId));
   };
 
   const mentionHashtagClick = text => {
-    if (text.startsWith('#')) navigate('Hashtag', {hashtag: text});
-    else navigate('GuestProfile', {username: text});
+    if (text.startsWith('#')) navigation.navigate('Hashtag', {hashtag: text});
+    else navigation.navigate('GuestProfile', {username: text});
   };
 
   useEffect(() => {
@@ -64,29 +75,35 @@ const Post = ({item}) => {
             : colors_light.colorPrimary,
           overflow: 'hidden',
         }}>
-        <View style={styles.photoAndNameArea}>
+        <View onPress={onProfileClick} style={styles.photoAndNameArea}>
           <FastImage
+            onPress={onProfileClick}
             style={styles.profilePhoto}
             resizeMode={'cover'}
             fadeDuration={0}
             source={{
-              uri: post.user.profile_photo.url,
+              uri: user.profile_photo.url,
             }}
           />
           <View style={styles.nameUsernameLayout}>
             <Text
+              onPress={onProfileClick}
               style={{
                 color: isDarkMode
                   ? colors_dark.textColor
                   : colors_light.textColor,
                 fontWeight: 'bold',
               }}>
-              {post.user.name}
+              {user.name}
             </Text>
-            <Text style={styles.usernameText}>@{post.user.username}</Text>
+            <Text onPress={onProfileClick} style={styles.usernameText}>
+              @{user.username}
+            </Text>
           </View>
           <TouchableHighlight
-            underlayColor={colors_dark.neutralColor}
+            underlayColor={
+              isDarkMode ? colors_dark.rippleColor : colors_light.rippleColor
+            }
             onPress={() => {
               //showToastMessage("Deneme");
             }}
@@ -142,8 +159,10 @@ const Post = ({item}) => {
           alignItems: 'center',
         }}>
         <TouchableHighlight
-          style={{flex: 5}}
-          underlayColor={'#eee'}
+          style={{flex: 4}}
+          underlayColor={
+            isDarkMode ? colors_dark.rippleColor : colors_light.rippleColor
+          }
           onPress={likeClick}>
           <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
             <Ionicons
@@ -160,16 +179,16 @@ const Post = ({item}) => {
                 fontWeight: 'bold',
                 color: colors_dark.neutralColor,
               }}>
-              {liked ? post.likes + 1 : post.likes}
+              {post.likes}
             </Text>
           </View>
         </TouchableHighlight>
         <TouchableHighlight
-          style={{flex: 5}}
-          underlayColor={'#eee'}
-          onPress={() => {
-            //Open Comments
-          }}>
+          style={{flex: 4}}
+          underlayColor={
+            isDarkMode ? colors_dark.rippleColor : colors_light.rippleColor
+          }
+          onPress={onCommentsClick}>
           <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
             <Ionicons
               style={{marginLeft: 10}}
@@ -190,7 +209,7 @@ const Post = ({item}) => {
         </TouchableHighlight>
 
         <View style={{flex: 3, justifyContent: 'center'}}>
-          <Text style={{color: colors_dark.neutralColor}}>
+          <Text style={{color: colors_dark.neutralColor, marginLeft: 5}}>
             {getRelativeTime(new Date(post.createdAt))}
           </Text>
         </View>

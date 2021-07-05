@@ -1,10 +1,10 @@
 export const TYPE_LOGIN = 'TYPE_LOGIN';
 export const TYPE_LOGOUT = 'TYPE_LOGOUT';
 
-export const loginAction = user => {
+export const loginAction = auth => {
   return {
     type: TYPE_LOGIN,
-    payload: user,
+    payload: auth,
   };
 };
 

@@ -32,15 +32,18 @@ const EditTextWithIcon = ({
         shadowRadius: 2,
         elevation: 2,
       }}>
-      <View
-        style={{
-          width: 50,
-          height: 50,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-        {icon}
-      </View>
+      {icon && (
+        <View
+          style={{
+            width: 50,
+            height: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          {icon}
+        </View>
+      )}
+
       <TextInput
         value={value}
         onChangeText={setValue}

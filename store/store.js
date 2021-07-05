@@ -5,10 +5,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {authReducer} from './Auth/reducer';
 import {postReducer} from './Post/reducer';
+import {userReducer} from './User/reducer';
 
 const combinedReducers = combineReducers({
   auth: authReducer,
   post: postReducer,
+  user: userReducer,
 });
 
 const persistConfig = {

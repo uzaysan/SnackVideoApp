@@ -19,9 +19,9 @@ const GridItemThreeImage = props => {
   const onClick = data => {};
   const data = props.data.data;
 
-  const post0 = useSelector(state => state.post.postTree[data[0].objectId]);
-  const post1 = useSelector(state => state.post.postTree[data[1].objectId]);
-  const post2 = useSelector(state => state.post.postTree[data[2].objectId]);
+  const post0 = useSelector(state => state.post[data[0].objectId]);
+  const post1 = useSelector(state => state.post[data[1].objectId]);
+  const post2 = useSelector(state => state.post[data[2].objectId]);
 
   return (
     <View

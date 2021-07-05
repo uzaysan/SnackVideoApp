@@ -8,6 +8,7 @@ import ButtonWithProgress from './ButtonWithProgress';
 import {UserApi} from '../../api/User';
 import {useDispatch} from 'react-redux';
 import {loginAction} from '../../store/Auth/actions';
+import {addUser} from '../../store/User/action';
 import {store} from '../../store/store';
 import {CommonActions} from '@react-navigation/native';
 
@@ -50,7 +51,10 @@ const LoginScreen = ({navigation}) => {
       return;
     }
     console.log(user);
-    dispatch(loginAction(user));
+    dispatch(
+      loginAction({sessionToken: user.sessionToken, objectId: user.objectId}),
+    );
+    dispatch(addUser(user));
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
