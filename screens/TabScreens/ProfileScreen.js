@@ -17,8 +17,6 @@ import {PostApi} from '../../api/Post';
 import {Constants} from '../../Helper/Constants';
 import AntDesign from 'react-native-vector-icons/dist/AntDesign';
 
-const currentUserId = store.getState().auth.currentUser.objectId;
-
 const ProfileScreen = ({route, navigation}) => {
   const isDarkMode = useColorScheme() === 'dark';
   const profileId =
@@ -42,7 +40,7 @@ const ProfileScreen = ({route, navigation}) => {
   const date = useRef({iso: ''});
   const loading = useRef(false);
   const hasMore = useRef(true);
-
+  const currentUserId = useSelector(state => state.auth.currentUser.objectId);
   const user = useSelector(state => state.user[profileId]);
 
   const getPosts = async (isRefresh = false) => {
@@ -97,7 +95,7 @@ const ProfileScreen = ({route, navigation}) => {
           alignItems: 'center',
           flexDirection: 'row',
         }}>
-        {profileId !== currentUserId && (
+        {user.objectId !== currentUserId && (
           <TouchableHighlight
             onPress={onBackPress}
             style={{

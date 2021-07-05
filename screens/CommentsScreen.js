@@ -1,12 +1,80 @@
-import React from 'react';
-import {View, Text, useColorScheme, TouchableHighlight} from 'react-native';
+import React, {useState, useRef, useEffect} from 'react';
+import {
+  View,
+  Text,
+  useColorScheme,
+  TouchableHighlight,
+  TextInput,
+  FlatList,
+} from 'react-native';
 import {colors_dark, colors_light} from '../values/Colors';
 import {strings_eng} from '../values/Strings';
 import AntDesign from 'react-native-vector-icons/dist/AntDesign';
+import Ionicons from 'react-native-vector-icons/dist/Ionicons';
+import {useSelector, useDispatch} from 'react-redux';
+import {PostApi} from '../api/Post';
+import {addUsers} from '../store/User/action';
+import Comment from '../components/Comment';
 
-const CommentsScreen = ({navigation}) => {
+const CommentsScreen = ({navigation, route}) => {
   const isDarkMode = useColorScheme() === 'dark';
+  const dispatch = useDispatch();
+  const [commentText, setCommentText] = useState('');
+  const [comments, setComments] = useState([]);
+  const [refreshing, setRefreshing] = useState(true);
 
+  const currentUser = useSelector(state => state.auth.currentUser.objectId);
+  const postId = route?.params?.post?.objectId;
+
+  const date = useRef({iso: ''});
+  const loading = useRef(false);
+  const hasMore = useRef(true);
+  const flatList = useRef();
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    getComments(true);
+  };
+
+  const getComments = async (isRefresh = false) => {
+    if (loading.current) return;
+    loading.current = true;
+    const result = await PostApi.getComments(
+      postId,
+      isRefresh ? '' : date.current.iso,
+    );
+    date.current = result.date;
+    hasMore.current = result.hasMore;
+    const userList = [];
+
+    for (const comment of result.comments) {
+      userList.push({...comment.user});
+      comment.user = comment.user.objectId;
+    }
+    dispatch(addUsers(userList));
+    setComments(comments => {
+      if (isRefresh) return result.comments;
+      return comments.concat(result.comments);
+    });
+    setRefreshing(false);
+    loading.current = false;
+  };
+
+  useEffect(() => {
+    getComments();
+  }, []);
+
+  const onSendButtonClick = () => {
+    PostApi.commentToPost(postId, commentText);
+    const newComment = {
+      user: currentUser,
+      comment: commentText,
+      createdAt: new Date(),
+      objectId: Math.random().toString(),
+    };
+    setComments(pre => [newComment, ...pre]);
+    setCommentText('');
+  };
   const onBackPress = () => {
     navigation.goBack();
   };
@@ -61,6 +129,78 @@ const CommentsScreen = ({navigation}) => {
           }}>
           {strings_eng.comments}
         </Text>
+      </View>
+      <FlatList
+        style={{flex: 1}}
+        data={comments}
+        contentContainerStyle={{marginTop: 3, marginBottom: 3}}
+        initialNumToRender={20}
+        keyExtractor={item => item.objectId}
+        maxToRenderPerBatch={10}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
+        windowSize={10}
+        renderItem={({item, index}) => {
+          return <Comment comment={item} />;
+        }}
+      />
+      <View
+        style={{
+          width: '100%',
+          height: 55,
+          flexDirection: 'row',
+          backgroundColor: isDarkMode
+            ? colors_dark.colorPrimary
+            : colors_light.colorPrimary,
+          alignContent: 'center',
+        }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            height: 45,
+            flex: 1,
+            margin: 5,
+            backgroundColor: isDarkMode
+              ? colors_dark.backgroundColor
+              : colors_light.backgroundColor,
+            borderRadius: 25,
+          }}>
+          <TextInput
+            value={commentText}
+            onChangeText={setCommentText}
+            multiline={true}
+            style={{
+              flex: 1,
+              fontSize: 16,
+              marginRight: 7,
+              marginLeft: 7,
+            }}
+            placeholder={strings_eng.comment}
+          />
+        </View>
+        <TouchableHighlight
+          style={{
+            height: 45,
+            width: 45,
+            borderRadius: 25,
+            marginTop: 5,
+            marginRight: 5,
+            marginBottom: 5,
+          }}
+          onPress={onSendButtonClick}
+          underlayColor={'#98cbfa'}>
+          <View
+            style={{
+              height: 45,
+              width: 45,
+              borderRadius: 25,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: colors_light.blue,
+            }}>
+            <Ionicons name="ios-send-sharp" size={24} color="white" />
+          </View>
+        </TouchableHighlight>
       </View>
     </View>
   );

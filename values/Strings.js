@@ -15,4 +15,5 @@ export const strings_eng = {
   subscribe: 'Subscribe',
   unsubscribe: 'Unsubscribe',
   comments: 'Comments',
+  comment: 'Comment',
 };
