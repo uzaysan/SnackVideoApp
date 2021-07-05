@@ -5,11 +5,11 @@ import {strings_eng} from '../../values/Strings';
 import {useSelector, useDispatch} from 'react-redux';
 import PostRecyclerView from '../../components/PostRecyclerView';
 import {PostApi} from '../../api/Post';
-import {refreshHomeObjects} from '../../store/Post/action';
+import {refreshHomeObjects, addHomeObjects} from '../../store/Post/action';
 
 const HomeScreen = props => {
-  const date = useRef();
-  const loading = useRef(true);
+  const date = useRef({iso: ''});
+  const loading = useRef(false);
   const hasMore = useRef(true);
 
   const isDarkMode = useColorScheme() === 'dark';
@@ -17,22 +17,26 @@ const HomeScreen = props => {
   const posts = useSelector(state => state.post.home);
 
   const [refreshing, setRefreshing] = useState(false);
+
   const onRefresh = () => {
     setRefreshing(true);
-    getPosts();
+    getPosts(true);
   };
 
-  const getPosts = async () => {
-    const result = await PostApi.getHomeObjects(date.current);
-    if (refreshing) setRefreshing(false);
+  const getPosts = async (isRefresh = false) => {
+    if (loading.current) return;
+    loading.current = true;
+    const result = await PostApi.getHomeObjects(date.current.iso);
     date.current = result.date;
     loading.current = false;
     hasMore.current = result.hasMore;
-    dispatch(refreshHomeObjects(result.posts));
+    if (isRefresh) dispatch(refreshHomeObjects(result.posts));
+    else dispatch(addHomeObjects(result.posts));
+    setRefreshing(false);
   };
 
   useEffect(() => {
-    getPosts();
+    getPosts(true);
   }, []);
 
   return (
@@ -67,6 +71,7 @@ const HomeScreen = props => {
         posts={posts}
         onRefresh={onRefresh}
         refreshing={refreshing}
+        onEndReached={getPosts}
       />
     </View>
   );

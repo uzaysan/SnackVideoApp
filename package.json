@@ -20,6 +20,7 @@
     "moment": "^2.29.1",
     "react": "17.0.1",
     "react-native": "0.64.2",
+    "react-native-fast-image": "^8.3.4",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-ionicons": "^4.6.5",
     "react-native-reanimated": "^2.2.0",

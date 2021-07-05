@@ -1,5 +1,6 @@
 import React, {useRef, useState, useEffect} from 'react';
-import {View, Image, ActivityIndicator} from 'react-native';
+import {View, ActivityIndicator} from 'react-native';
+import FastImage from 'react-native-fast-image';
 import {Video} from 'expo-av';
 import Entypo from 'react-native-vector-icons/dist/Entypo';
 import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
@@ -103,7 +104,7 @@ const VideoPlayer = props => {
         />
 
         {!playing && (
-          <Image
+          <FastImage
             style={{
               position: 'absolute',
               top: 0,

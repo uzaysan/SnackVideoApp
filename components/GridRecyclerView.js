@@ -6,17 +6,21 @@ import {
   View,
 } from 'react-native';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
+import GridItemThreeImage from './GridItemThreeImage';
+import GridItemVideoLeft from './GridItemVideoLeft';
+import GridItemVideoRight from './GridItemVideoRight';
+import {Constants} from '../Helper/Constants';
 import {colors_light} from '../values/Colors';
-import Post from './Post';
 
 const ViewTypes = {
-  TYPE_VIDEO: 0,
-  TYPE_LOAD: 1,
+  TYPE_THREE_NORMAL: 0,
+  TYPE_BIG_RIGHT: 1,
+  TYPE_BIG_LEFT: 2,
 };
 
-const width = Dimensions.get('window').width;
+let {width} = Dimensions.get('window');
 
-const PostRecyclerView = ({
+const GridRecyclerView = ({
   posts,
   onRefresh,
   style,
@@ -31,13 +35,23 @@ const PostRecyclerView = ({
 
   const layoutProvider = new LayoutProvider(
     index => {
-      return ViewTypes.TYPE_VIDEO;
+      if (index % 6 === 1) return ViewTypes.TYPE_BIG_RIGHT;
+      else if (index % 6 === 4) return ViewTypes.TYPE_BIG_LEFT;
+      else return ViewTypes.TYPE_THREE_NORMAL;
     },
     (type, dim) => {
       switch (type) {
-        case ViewTypes.TYPE_VIDEO:
+        case ViewTypes.TYPE_THREE_NORMAL:
           dim.width = width;
-          dim.height = 120 + (width * 4) / 3;
+          dim.height = width / 3;
+          break;
+        case ViewTypes.TYPE_BIG_RIGHT:
+          dim.width = width;
+          dim.height = (width / 3) * 2 + Constants.exploreItemMargin;
+          break;
+        case ViewTypes.TYPE_BIG_LEFT:
+          dim.width = width;
+          dim.height = (width / 3) * 2 + Constants.exploreItemMargin;
           break;
         default:
           dim.width = 0;
@@ -48,20 +62,12 @@ const PostRecyclerView = ({
 
   const rowRenderer = (type, data) => {
     switch (type) {
-      case ViewTypes.TYPE_VIDEO:
-        return <Post item={data} />;
-      case ViewTypes.TYPE_LOAD:
-        return (
-          <View
-            style={{
-              width: '100%',
-              height: 50,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <ActivityIndicator size={40} color={colors_light.neutralColor} />
-          </View>
-        );
+      case ViewTypes.TYPE_THREE_NORMAL:
+        return <GridItemThreeImage data={data} />;
+      case ViewTypes.TYPE_BIG_LEFT:
+        return <GridItemVideoLeft data={data} />;
+      case ViewTypes.TYPE_BIG_RIGHT:
+        return <GridItemVideoRight data={data} />;
       default:
         return null;
     }
@@ -75,23 +81,11 @@ const PostRecyclerView = ({
     return (
       <RecyclerListView
         style={style}
+        contentContainerStyle={{marginTop: 1, marginBottom: 1}}
         layoutProvider={layoutProvider}
         dataProvider={dataProvider}
-        contentContainerStyle={{marginTop: 3, marginBottom: 3}}
-        onEndReached={onEndReached}
-        renderFooter={() => (
-          <View
-            style={{
-              width: '100%',
-              height: 50,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <ActivityIndicator size={40} color={colors_light.neutralColor} />
-          </View>
-        )}
-        forceNonDeterministicRendering={true}
         rowRenderer={rowRenderer}
+        onEndReached={onEndReached}
         renderAheadOffset={1000}
         scrollViewProps={{
           refreshControl: (
@@ -115,4 +109,4 @@ const PostRecyclerView = ({
   }
 };
 
-export default PostRecyclerView;
+export default GridRecyclerView;

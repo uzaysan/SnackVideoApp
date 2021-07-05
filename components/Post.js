@@ -4,11 +4,11 @@ import React, {useState, useEffect} from 'react';
 import {
   useColorScheme,
   View,
-  Image,
   Text,
   TouchableHighlight,
   StyleSheet,
 } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import {useSelector, useDispatch} from 'react-redux';
 import {colors_dark, colors_light} from '../values/Colors';
 
@@ -24,7 +24,9 @@ const Post = ({item}) => {
   const dispatch = useDispatch();
   const iconColor = isDarkMode ? 'white' : 'black';
   const navigate = useNavigation();
+
   const post = useSelector(state => state.post.postTree[item.objectId]);
+
   const [collapsed, setCollapsed] = useState(true);
   const [liked, setLiked] = useState(post.liked);
   const collapseExpandText = () => {
@@ -63,7 +65,7 @@ const Post = ({item}) => {
           overflow: 'hidden',
         }}>
         <View style={styles.photoAndNameArea}>
-          <Image
+          <FastImage
             style={styles.profilePhoto}
             resizeMode={'cover'}
             fadeDuration={0}
@@ -140,12 +142,12 @@ const Post = ({item}) => {
           alignItems: 'center',
         }}>
         <TouchableHighlight
-          style={{flex: 3}}
+          style={{flex: 5}}
           underlayColor={'#eee'}
           onPress={likeClick}>
           <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
             <Ionicons
-              style={{marginLeft: 10}}
+              style={{marginLeft: 15}}
               name="heart"
               size={28}
               color={liked ? 'red' : colors_dark.neutralColor}
@@ -163,7 +165,7 @@ const Post = ({item}) => {
           </View>
         </TouchableHighlight>
         <TouchableHighlight
-          style={{flex: 3}}
+          style={{flex: 5}}
           underlayColor={'#eee'}
           onPress={() => {
             //Open Comments
@@ -187,7 +189,7 @@ const Post = ({item}) => {
           </View>
         </TouchableHighlight>
 
-        <View style={{flex: 3, alignItems: 'center'}}>
+        <View style={{flex: 3, justifyContent: 'center'}}>
           <Text style={{color: colors_dark.neutralColor}}>
             {getRelativeTime(new Date(post.createdAt))}
           </Text>

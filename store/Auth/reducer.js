@@ -1,7 +1,7 @@
 import {TYPE_LOGIN, TYPE_LOGOUT} from './actions';
 
 const INITIAL_STATE = {
-  currentUser: undefined,
+  currentUser: {},
 };
 
 export const authReducer = (state = INITIAL_STATE, action) => {
@@ -11,6 +11,6 @@ export const authReducer = (state = INITIAL_STATE, action) => {
     case TYPE_LOGOUT:
       return INITIAL_STATE;
     default:
-      return INITIAL_STATE;
+      return state;
   }
 };

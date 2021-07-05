@@ -2,8 +2,8 @@ import {BASE_URL, PARSE_APP_ID, PARSE_REST_KEY} from '../keys';
 import {store} from '../store/store';
 
 const getHomeObjects = date => {
-  const sessionToken = store.getState()?.auth?.currentUser?.sessionToken;
-  if (!sessionToken) return [];
+  const sessionToken = store.getState().auth.currentUser.sessionToken;
+  if (!sessionToken) return {posts: [], date: {iso: ''}, hasMore: true};
   return fetch(`${BASE_URL}functions/getHomeObjects?date=${date}`, {
     method: 'POST',
     headers: {

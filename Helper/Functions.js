@@ -30,3 +30,26 @@ export const getRelativeTime = date => {
   const second = Math.floor(interval);
   return `${second} ${second === 1 ? 'second' : 'seconds'}`;
 };
+
+export const arrangeItemsToGrid = list => {
+  let tmpList = [];
+  let postTree = {};
+
+  for (let i = 0; i < list.length; i = i + 3) {
+    if (list.length - (i + 1) < 3) {
+      continue;
+    }
+    postTree[list[i].objectId] = list[i];
+    postTree[list[i + 1].objectId] = list[i + 1];
+    postTree[list[i + 2].objectId] = list[i + 2];
+    tmpList.push({
+      objectId: Math.random().toString(),
+      data: [
+        {type: 'Post', objectId: list[i].objectId},
+        {type: 'Post', objectId: list[i + 1].objectId},
+        {type: 'Post', objectId: list[i + 2].objectId},
+      ],
+    });
+  }
+  return {gridPosts: tmpList, newPostTree: postTree};
+};

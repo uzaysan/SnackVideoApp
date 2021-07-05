@@ -13,7 +13,7 @@ import {CommonActions} from '@react-navigation/native';
 
 const LoginScreen = ({navigation}) => {
   const isDarkMode = useColorScheme() === 'dark';
-  if (store.getState().auth.currentUser) {
+  if (store.getState().auth.currentUser.sessionToken) {
     // Navigate to main menu
     navigation.dispatch(
       CommonActions.reset({

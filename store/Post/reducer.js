@@ -1,12 +1,15 @@
+import {arrangeItemsToGrid} from '../../Helper/Functions';
 import {
   TYPE_ADD_HOME_OBJECTS,
   TYPE_LIKE_TOGGLE,
   TYPE_REFRESH_HOME_OBJECTS,
+  TYPE_SET_GRID_EXPLORE_POSTS,
 } from './action';
 
 const INITIAL_STATE = {
   home: [],
   likes: [],
+  exploreGrid: [],
   postTree: {},
 };
 
@@ -39,6 +42,14 @@ export const postReducer = (state = INITIAL_STATE, action) => {
     const postTree = {...state.postTree};
     postTree[action.payload].liked = !postTree[action.payload].liked;
     return {...state, postTree: postTree};
+  } else if (action.type === TYPE_SET_GRID_EXPLORE_POSTS) {
+    const arrangedPosts = arrangeItemsToGrid(action.payload);
+    const newPostTree = {...state.postTree, ...arrangedPosts.newPostTree};
+    return {
+      ...state,
+      newPostTree: newPostTree,
+      exploreGrid: arrangedPosts.gridPosts,
+    };
   } else {
     return state;
   }
