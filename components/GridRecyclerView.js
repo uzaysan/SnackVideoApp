@@ -1,10 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {
-  Dimensions,
-  RefreshControl,
-  ActivityIndicator,
-  View,
-} from 'react-native';
+import {Dimensions, RefreshControl, View} from 'react-native';
+import ProgressBar from './ProgressBar';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import GridItemThreeImage from './GridItemThreeImage';
 import GridItemVideoLeft from './GridItemVideoLeft';
@@ -81,7 +77,6 @@ const GridRecyclerView = ({
     return (
       <RecyclerListView
         style={style}
-        contentContainerStyle={{marginTop: 1, marginBottom: 1}}
         layoutProvider={layoutProvider}
         dataProvider={dataProvider}
         rowRenderer={rowRenderer}
@@ -95,17 +90,7 @@ const GridRecyclerView = ({
       />
     );
   } else {
-    return (
-      <View
-        style={{
-          width: '100%',
-          height: 50,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-        <ActivityIndicator size={40} color={colors_light.neutralColor} />
-      </View>
-    );
+    return <ProgressBar />;
   }
 };
 

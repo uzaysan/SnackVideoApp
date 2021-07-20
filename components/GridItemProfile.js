@@ -14,10 +14,9 @@ import {useSelector} from 'react-redux';
 const width = Dimensions.get('window').width;
 const margin = Constants.exploreItemMargin;
 
-const GridItemProfile = ({style, item}) => {
+const GridItemProfile = ({style, item, onClick}) => {
   const isDarkMode = useColorScheme() === 'dark';
   const post = useSelector(state => state.post[item.objectId]);
-  const onClick = () => {};
   return (
     <View
       style={{

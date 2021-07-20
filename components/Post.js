@@ -144,6 +144,7 @@ const Post = ({item}) => {
         id={post.id}
         uri={post.media.media.url}
         thumbnail={post.media.thumbnail.url}
+        id={post.objectId}
       />
       <View
         style={{

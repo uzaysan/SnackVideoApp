@@ -1,12 +1,7 @@
-import React, {useEffect, useState} from 'react';
-import {
-  Dimensions,
-  RefreshControl,
-  ActivityIndicator,
-  View,
-} from 'react-native';
+import React, {useEffect, useState, useRef} from 'react';
+import {Dimensions, RefreshControl} from 'react-native';
+import ProgressBar from './ProgressBar';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
-import {colors_light} from '../values/Colors';
 import Post from './Post';
 
 const ViewTypes = {
@@ -22,6 +17,7 @@ const PostRecyclerView = ({
   style,
   refreshing,
   onEndReached,
+  hasMore,
 }) => {
   const [dataProvider, setDataProvider] = useState(
     new DataProvider((r1, r2) => {
@@ -37,7 +33,7 @@ const PostRecyclerView = ({
       switch (type) {
         case ViewTypes.TYPE_VIDEO:
           dim.width = width;
-          dim.height = 120 + (width * 4) / 3;
+          dim.height = 120 + width;
           break;
         default:
           dim.width = 0;
@@ -51,17 +47,7 @@ const PostRecyclerView = ({
       case ViewTypes.TYPE_VIDEO:
         return <Post item={data} />;
       case ViewTypes.TYPE_LOAD:
-        return (
-          <View
-            style={{
-              width: '100%',
-              height: 50,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <ActivityIndicator size={40} color={colors_light.neutralColor} />
-          </View>
-        );
+        return <ProgressBar />;
       default:
         return null;
     }
@@ -71,47 +57,38 @@ const PostRecyclerView = ({
     setDataProvider(dataProvider.cloneWithRows(posts));
   }, [posts]);
 
+  const visibleLog = (all, now, notNow) => {
+    //console.log('All : ' + JSON.stringify(all));
+    //console.log('Now : ' + JSON.stringify(now));
+    //console.log('NotNow : ' + JSON.stringify(notNow));
+  };
+
   if (posts.length > 0) {
     return (
       <RecyclerListView
         style={style}
         layoutProvider={layoutProvider}
         dataProvider={dataProvider}
-        contentContainerStyle={{marginTop: 3, marginBottom: 3}}
         onEndReached={onEndReached}
-        renderFooter={() => (
-          <View
-            style={{
-              width: '100%',
-              height: 50,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <ActivityIndicator size={40} color={colors_light.neutralColor} />
-          </View>
-        )}
         forceNonDeterministicRendering={true}
         rowRenderer={rowRenderer}
         renderAheadOffset={1000}
+        onVisibleIndicesChanged={visibleLog}
         scrollViewProps={{
           refreshControl: (
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           ),
         }}
+        renderFooter={() => {
+          if (hasMore && hasMore.current) {
+            return <ProgressBar />;
+          }
+          return null;
+        }}
       />
     );
   } else {
-    return (
-      <View
-        style={{
-          width: '100%',
-          height: 50,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-        <ActivityIndicator size={40} color={colors_light.neutralColor} />
-      </View>
-    );
+    return <ProgressBar />;
   }
 };
 

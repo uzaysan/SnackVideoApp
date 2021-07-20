@@ -1,3 +1,9 @@
+import Toast from 'react-native-simple-toast';
+
+export const toastMessage = str => {
+  Toast.show(str, Toast.LONG);
+};
+
 export const getRelativeTime = date => {
   var seconds = Math.floor((new Date() - date) / 1000);
 

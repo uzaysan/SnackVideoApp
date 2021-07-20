@@ -15,13 +15,15 @@ import {useSelector, useDispatch} from 'react-redux';
 import {PostApi} from '../api/Post';
 import {addUsers} from '../store/User/action';
 import Comment from '../components/Comment';
+import ProgressBar from '../components/ProgressBar';
+import {Constants} from '../Helper/Constants';
 
 const CommentsScreen = ({navigation, route}) => {
   const isDarkMode = useColorScheme() === 'dark';
   const dispatch = useDispatch();
   const [commentText, setCommentText] = useState('');
-  const [comments, setComments] = useState([]);
-  const [refreshing, setRefreshing] = useState(true);
+  const [comments, setComments] = useState([Constants.loadItem]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const currentUser = useSelector(state => state.auth.currentUser.objectId);
   const postId = route?.params?.post?.objectId;
@@ -29,7 +31,6 @@ const CommentsScreen = ({navigation, route}) => {
   const date = useRef({iso: ''});
   const loading = useRef(false);
   const hasMore = useRef(true);
-  const flatList = useRef();
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -54,7 +55,15 @@ const CommentsScreen = ({navigation, route}) => {
     dispatch(addUsers(userList));
     setComments(comments => {
       if (isRefresh) return result.comments;
-      return comments.concat(result.comments);
+      if (
+        comments.length > 0 &&
+        comments[comments.length - 1].type === 'Load'
+      ) {
+        comments.splice(comments.length - 1, 1);
+      }
+      comments = comments.concat(result.comments);
+      if (result.hasMore) comments.push(Constants.loadItem);
+      return comments;
     });
     setRefreshing(false);
     loading.current = false;
@@ -141,6 +150,7 @@ const CommentsScreen = ({navigation, route}) => {
         refreshing={refreshing}
         windowSize={10}
         renderItem={({item, index}) => {
+          if (item.type === 'Load') return <ProgressBar />;
           return <Comment comment={item} />;
         }}
       />

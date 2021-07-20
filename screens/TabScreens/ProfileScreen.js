@@ -5,6 +5,7 @@ import {
   Text,
   FlatList,
   TouchableHighlight,
+  Modal,
 } from 'react-native';
 import {colors_dark, colors_light} from '../../values/Colors';
 import {useSelector, useDispatch} from 'react-redux';
@@ -16,15 +17,17 @@ import GridItemProfile from '../../components/GridItemProfile';
 import {PostApi} from '../../api/Post';
 import {Constants} from '../../Helper/Constants';
 import AntDesign from 'react-native-vector-icons/dist/AntDesign';
+import PostRecyclerView from '../../components/PostRecyclerView';
+import ProgressBar from '../../components/ProgressBar';
 
 const ProfileScreen = ({route, navigation}) => {
   const isDarkMode = useColorScheme() === 'dark';
   const profileId =
     route?.params?.userId || store.getState().auth.currentUser.objectId;
 
-  const [posts, setPosts] = useState([]);
-
-  const [refreshing, setRefreshing] = useState(true);
+  const [posts, setPosts] = useState([Constants.loadItem]);
+  const [visible, setVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const onBackPress = () => {
     navigation.goBack();
@@ -33,6 +36,10 @@ const ProfileScreen = ({route, navigation}) => {
   const onRefresh = () => {
     setRefreshing(true);
     getPosts(true);
+  };
+
+  const onItemClick = () => {
+    setVisible(true);
   };
 
   const dispatch = useDispatch();
@@ -44,14 +51,13 @@ const ProfileScreen = ({route, navigation}) => {
   const user = useSelector(state => state.user[profileId]);
 
   const getPosts = async (isRefresh = false) => {
-    if (loading.current) return;
+    if (loading.current || !hasMore.current) return;
     loading.current = true;
     const result = await PostApi.getPostsByUser(
       user.objectId,
       isRefresh ? '' : date.current.iso,
     );
     date.current = result.date;
-    hasMore.current = result.hasMore;
     const userList = [];
     const postList = [];
     const forList = [];
@@ -66,10 +72,16 @@ const ProfileScreen = ({route, navigation}) => {
     dispatch(addPosts(postList));
     setPosts(posts => {
       if (isRefresh) return forList;
-      return posts.concat(forList);
+      if (posts.length > 0 && posts[posts.length - 1].type === 'Load') {
+        posts.splice(posts.length - 1, 1);
+      }
+      posts = posts.concat(forList);
+      if (result.hasMore) posts.push(Constants.loadItem);
+      return posts;
     });
     setRefreshing(false);
     loading.current = false;
+    hasMore.current = result.hasMore;
   };
 
   useEffect(() => {
@@ -132,6 +144,29 @@ const ProfileScreen = ({route, navigation}) => {
           {'@' + user.username}
         </Text>
       </View>
+      <Modal
+        animationType="none"
+        visible={visible}
+        onRequestClose={() => {
+          setVisible(visible => !visible);
+        }}>
+        <View
+          style={{
+            backgroundColor: isDarkMode
+              ? colors_dark.backgroundColor
+              : colors_light.backgroundColor,
+            flex: 1,
+          }}>
+          <PostRecyclerView
+            style={{flex: 1}}
+            posts={posts}
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+            hasMore={hasMore}
+            onEndReached={getPosts}
+          />
+        </View>
+      </Modal>
       <FlatList
         style={{flex: 1}}
         data={posts}
@@ -139,6 +174,7 @@ const ProfileScreen = ({route, navigation}) => {
         numColumns={3}
         keyExtractor={item => item.objectId}
         maxToRenderPerBatch={7}
+        onEndReached={getPosts}
         ListHeaderComponent={
           <ProfileComponent currentUserId={currentUserId} profile={user} />
         }
@@ -146,6 +182,7 @@ const ProfileScreen = ({route, navigation}) => {
         refreshing={refreshing}
         windowSize={10}
         renderItem={({item, index}) => {
+          if (item.type === 'Load') return <ProgressBar />;
           let style;
           if ((index + 1) % 3 === 2) {
             style = {
@@ -161,7 +198,9 @@ const ProfileScreen = ({route, navigation}) => {
               marginLeft: (4 * Constants.exploreItemMargin) / 3,
             };
           }
-          return <GridItemProfile item={item} style={style} />;
+          return (
+            <GridItemProfile item={item} style={style} onClick={onItemClick} />
+          );
         }}
       />
     </View>

@@ -16,4 +16,7 @@ export const strings_eng = {
   unsubscribe: 'Unsubscribe',
   comments: 'Comments',
   comment: 'Comment',
+  changephoto: 'Change photo',
+  save: 'Save',
+  error: 'Error',
 };

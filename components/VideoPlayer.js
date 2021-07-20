@@ -5,6 +5,8 @@ import {Video} from 'expo-av';
 import Entypo from 'react-native-vector-icons/dist/Entypo';
 import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
 import VisibilityCheck from './VisibilityCheck';
+import {Constants} from '../Helper/Constants';
+import {PostApi} from '../api/Post';
 
 const VideoPlayer = props => {
   const video = useRef(undefined);
@@ -30,6 +32,10 @@ const VideoPlayer = props => {
   const playVideo = () => {
     if (video.current) {
       video.current.playAsync();
+      if (!(Constants.viewedVideos.indexOf(props.id) >= 0)) {
+        PostApi.incrementView(props.id);
+        Constants.viewedVideos.push(props.id);
+      }
     }
   };
 

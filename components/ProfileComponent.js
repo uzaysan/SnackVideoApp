@@ -126,7 +126,7 @@ const ProfileComponent = ({profile, currentUserId}) => {
             fontSize: 13,
             marginTop: 3,
           }}>
-          {'@' + profile.bio}
+          {profile.bio}
         </Text>
       </View>
       <TouchableHighlight

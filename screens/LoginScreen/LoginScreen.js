@@ -11,6 +11,7 @@ import {loginAction} from '../../store/Auth/actions';
 import {addUser} from '../../store/User/action';
 import {store} from '../../store/store';
 import {CommonActions} from '@react-navigation/native';
+import {toastMessage} from '../../Helper/Functions';
 
 const LoginScreen = ({navigation}) => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -40,17 +41,14 @@ const LoginScreen = ({navigation}) => {
   const [password, setPassword] = useState('');
 
   const login = async () => {
-    if (username === 'show') {
-      console.log(store.getState());
-      return;
-    }
     setLoading(true);
     const user = await UserApi.login(username, password);
-    if (!user.sessionToken) {
+    if (user.error || !user.sessionToken) {
       setLoading(false);
+      toastMessage(strings_eng.error);
       return;
     }
-    console.log(user);
+
     dispatch(
       loginAction({sessionToken: user.sessionToken, objectId: user.objectId}),
     );

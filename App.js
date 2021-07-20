@@ -6,6 +6,14 @@ import {Provider} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
 import Navigation from './navigation/Navigation';
 
+import Parse from 'parse/react-native.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {BASE_URL, PARSE_APP_ID, PARSE_JS_KEY} from './keys';
+
+Parse.setAsyncStorage(AsyncStorage);
+Parse.initialize(PARSE_APP_ID, PARSE_JS_KEY);
+Parse.serverURL = BASE_URL;
+
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
 

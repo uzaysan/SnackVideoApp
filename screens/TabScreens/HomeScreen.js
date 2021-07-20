@@ -7,6 +7,7 @@ import PostRecyclerView from '../../components/PostRecyclerView';
 import {PostApi} from '../../api/Post';
 import {addPosts} from '../../store/Post/action';
 import {addUsers} from '../../store/User/action';
+import {toastMessage} from '../../Helper/Functions';
 
 const HomeScreen = props => {
   const date = useRef({iso: ''});
@@ -28,6 +29,14 @@ const HomeScreen = props => {
     if (loading.current) return;
     loading.current = true;
     const result = await PostApi.getHomeObjects(date.current.iso);
+    if (result.error) {
+      console.log(JSON.stringify(result.error));
+      setRefreshing(false);
+      hasMore.current = true;
+      loading.current = false;
+      toastMessage(strings_eng.error);
+      return;
+    }
     date.current = result.date;
     hasMore.current = result.hasMore;
     const userList = [];
@@ -86,6 +95,7 @@ const HomeScreen = props => {
         onRefresh={onRefresh}
         refreshing={refreshing}
         onEndReached={getPosts}
+        hasMore={hasMore}
       />
     </View>
   );
