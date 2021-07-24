@@ -60,3 +60,7 @@ buck-out/
 
 # Keys
 /keys.js
+
+# Android Builds
+/Android/build
+
