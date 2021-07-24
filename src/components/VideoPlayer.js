@@ -1,14 +1,16 @@
 import React, {useRef, useState, useEffect} from 'react';
-import {View, ActivityIndicator} from 'react-native';
+import {View, Text, ActivityIndicator, useColorScheme} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {Video} from 'expo-av';
 import Entypo from 'react-native-vector-icons/dist/Entypo';
 import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
+import AntDesign from 'react-native-vector-icons/dist/AntDesign';
 import VisibilityCheck from './VisibilityCheck';
-import {Constants} from '../Helper/Constants';
 import {PostApi} from '../api/Post';
+import {colors_dark, colors_light} from '../values/Colors';
 
-const VideoPlayer = props => {
+const VideoPlayer = ({id, views, style, uri, mute, thumbnail}) => {
+  const isDarkMode = useColorScheme() === 'dark';
   const video = useRef(undefined);
 
   const [playing, setPlaying] = useState(false);
@@ -32,10 +34,7 @@ const VideoPlayer = props => {
   const playVideo = () => {
     if (video.current) {
       video.current.playAsync();
-      if (!(Constants.viewedVideos.indexOf(props.id) >= 0)) {
-        PostApi.incrementView(props.id);
-        Constants.viewedVideos.push(props.id);
-      }
+      PostApi.incrementView(id);
     }
   };
 
@@ -53,6 +52,39 @@ const VideoPlayer = props => {
     setVisible(isVisible);
     isVisible ? playVideo() : pauseVideo();
   };
+
+  const view = (
+    <View
+      style={{
+        position: 'absolute',
+        top: 5,
+        right: 5,
+        backgroundColor: isDarkMode
+          ? colors_dark.backgroundColor
+          : colors_light.backgroundColor,
+        paddingRight: 2,
+        paddingLeft: 4,
+        paddingTop: 2,
+        paddingBottom: 2,
+        borderRadius: 2,
+        flexDirection: 'row',
+      }}>
+      <AntDesign
+        name="eye"
+        size={16}
+        color={isDarkMode ? colors_dark.textColor : colors_light.textColor}
+      />
+      <Text
+        style={{
+          color: isDarkMode ? colors_dark.textColor : colors_light.textColor,
+          fontSize: 11,
+          paddingLeft: 3,
+          paddingRight: 2,
+        }}>
+        {views}
+      </Text>
+    </View>
+  );
 
   const icon = playing ? (
     <FontAwesome
@@ -88,7 +120,7 @@ const VideoPlayer = props => {
     />
   );
   return (
-    <View style={props.style}>
+    <View style={style}>
       <VisibilityCheck
         style={{flex: 1}}
         onUnmount={onUnmount}
@@ -96,11 +128,11 @@ const VideoPlayer = props => {
         <Video
           ref={video}
           source={{
-            uri: props.uri,
+            uri: uri,
           }}
           rate={1.0}
           volume={1.0}
-          isMuted={props.mute ? props.mute : false}
+          isMuted={mute ? mute : false}
           resizeMode="cover"
           isLooping={true}
           style={{flex: 1}}
@@ -122,11 +154,12 @@ const VideoPlayer = props => {
             resizeMode={'cover'}
             fadeDuration={0}
             source={{
-              uri: props.thumbnail,
+              uri: thumbnail,
             }}
           />
         )}
         {icon}
+        {view}
       </VisibilityCheck>
     </View>
   );

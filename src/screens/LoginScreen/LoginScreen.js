@@ -23,16 +23,8 @@ const LoginScreen = ({navigation}) => {
         routes: [{name: 'Tabs'}],
       }),
     );
-    //return emoty view
-    return (
-      <View
-        style={{
-          backgroundColor: isDarkMode
-            ? colors_dark.backgroundColor
-            : colors_light.backgroundColor,
-        }}
-      />
-    );
+    //return empty view
+    return null;
   }
   const dispatch = useDispatch();
 

@@ -30,7 +30,7 @@ const Post = ({item}) => {
   const user = useSelector(state => state.user[post.user]);
 
   const [collapsed, setCollapsed] = useState(true);
-  const [liked, setLiked] = useState(post.liked);
+  //const [liked, setLiked] = useState(post.liked);
   const collapseExpandText = () => {
     if (collapsed) {
       setCollapsed(false);
@@ -49,7 +49,7 @@ const Post = ({item}) => {
 
   const likeClick = () => {
     PostApi.likeToggle(post.objectId);
-    setLiked(pre => !pre);
+    //setLiked(pre => !pre);
     dispatch(likeToggle(post.objectId));
   };
 
@@ -60,7 +60,7 @@ const Post = ({item}) => {
 
   useEffect(() => {
     setCollapsed(true);
-    setLiked(post.liked);
+    //setLiked(post.liked);
   }, [post]);
 
   return (
@@ -145,6 +145,7 @@ const Post = ({item}) => {
         uri={post.media.media.url}
         thumbnail={post.media.thumbnail.url}
         id={post.objectId}
+        views={post.views}
       />
       <View
         style={{
@@ -170,7 +171,7 @@ const Post = ({item}) => {
               style={{marginLeft: 15}}
               name="heart"
               size={28}
-              color={liked ? 'red' : colors_dark.neutralColor}
+              color={post.liked ? 'red' : colors_dark.neutralColor}
             />
 
             <Text

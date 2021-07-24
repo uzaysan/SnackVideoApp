@@ -51,6 +51,7 @@ const GridItemVideoLeft = props => {
           uri={post0.media.media.url}
           thumbnail={post0.media.thumbnail.url}
           id={post0.objectId}
+          views={post0.views}
         />
       </TouchableHighlight>
 

@@ -125,6 +125,7 @@ const ProfileComponent = ({profile, currentUserId}) => {
             color: isDarkMode ? colors_dark.textColor : colors_light.textColor,
             fontSize: 13,
             marginTop: 3,
+            marginRight: 20,
           }}>
           {profile.bio}
         </Text>
@@ -162,6 +163,7 @@ const styles = StyleSheet.create({
     marginRight: 20,
     marginBottom: 15,
     justifyContent: 'center',
+    overflow: 'hidden',
   },
 
   editProfileButton: {

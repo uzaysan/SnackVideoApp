@@ -51,7 +51,7 @@ const ProfileScreen = ({route, navigation}) => {
   const user = useSelector(state => state.user[profileId]);
 
   const getPosts = async (isRefresh = false) => {
-    if (loading.current || !hasMore.current) return;
+    if (loading.current) return;
     loading.current = true;
     const result = await PostApi.getPostsByUser(
       user.objectId,

@@ -1,14 +1,20 @@
-import {BASE_URL, PARSE_APP_ID, PARSE_REST_KEY} from '../keys';
+import {BASE_URL, PARSE_APP_ID, PARSE_REST_KEY} from '../../keys';
 import Parse from 'parse/react-native.js';
 import {store} from '../store/store';
 
 const login = async (username, password) => {
-  try {
-    const user = await Parse.User.logIn(username, password);
-    return user.toJSON();
-  } catch (err) {
-    return {error: 'Login failed'};
-  }
+  let result = await fetch(
+    `${BASE_URL}login?username=${username}&password=${password}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Parse-Application-Id': PARSE_APP_ID,
+        'X-Parse-REST-API-Key': PARSE_REST_KEY,
+      },
+    },
+  );
+  return await result.json();
 };
 
 const subscribeToggle = async userId => {

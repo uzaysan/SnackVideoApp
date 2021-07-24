@@ -1,4 +1,4 @@
-import {BASE_URL, PARSE_APP_ID, PARSE_REST_KEY} from '../keys';
+import {BASE_URL, PARSE_APP_ID, PARSE_REST_KEY} from '../../keys';
 import Parse from 'parse/react-native.js';
 
 const uploadFile = async (name, base64, mimeType) => {

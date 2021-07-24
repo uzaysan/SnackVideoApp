@@ -11,10 +11,15 @@ export const postReducer = (state = INITIAL_STATE, action) => {
     }
     return {...newState};
   } else if (action.type === TYPE_LIKE_TOGGLE) {
-    const newState = {...state};
-    newState[action.payload].liked = !newState[action.payload].liked;
-    if (newState[action.payload].liked) newState[action.payload].likes++;
-    else newState[action.payload].likes--;
+    const newPost = {
+      ...state[action.payload],
+      liked: !state[action.payload].liked,
+      likes: state[action.payload].liked
+        ? state[action.payload].likes - 1
+        : state[action.payload].likes + 1,
+    };
+    const newState = {...state, [action.payload]: newPost};
+
     return {...newState};
   } else {
     return state;
