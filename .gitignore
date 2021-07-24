@@ -65,5 +65,6 @@ buck-out/
 /keys.js
 
 # Android Builds
-/Android/build
-
+/android/build
+/android/app/build
+/android/app/release
