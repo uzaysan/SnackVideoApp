@@ -55,6 +55,9 @@ buck-out/
 # Bundle artifact
 *.jsbundle
 
+#Android Java heap files
+*.hprof
+
 # CocoaPods
 /ios/Pods/
 
