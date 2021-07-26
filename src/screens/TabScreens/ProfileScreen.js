@@ -62,7 +62,7 @@ const ProfileScreen = ({route, navigation}) => {
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
-        routes: [{name: 'Tabs'}],
+        routes: [{name: 'Login'}],
       }),
     );
   };
