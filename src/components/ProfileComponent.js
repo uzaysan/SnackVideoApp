@@ -18,23 +18,17 @@ import {UserApi} from '../api/User';
 import {useNavigation} from '@react-navigation/core';
 
 const ProfileComponent = ({profile, currentUserId}) => {
-  const [subscribed, setSubscribed] = useState(profile.subscribed);
-
-  useEffect(() => {
-    setSubscribed(profile.subscribed);
-  }, [profile]);
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
   const isDarkMode = useColorScheme() === 'dark';
 
   const onButtonClick = () => {
-    if (currentUserId === profile.objectId) {
+    if (currentUserId === profile?.objectId) {
       navigation.push('EditProfile');
     } else {
-      setSubscribed(pre => !pre);
-      UserApi.subscribeToggle(profile.objectId);
-      dispatch(subscribeToggle(profile.objectId));
+      UserApi.subscribeToggle(profile?.objectId);
+      dispatch(subscribeToggle(profile?.objectId));
     }
   };
 
@@ -50,7 +44,7 @@ const ProfileComponent = ({profile, currentUserId}) => {
       <View style={styles.topContainer}>
         <FastImage
           source={{
-            uri: profile.profile_photo.url,
+            uri: profile?.profile_photo?.url,
           }}
           style={styles.profilePhoto}
         />
@@ -70,7 +64,7 @@ const ProfileComponent = ({profile, currentUserId}) => {
                   ? colors_dark.textColor
                   : colors_light.textColor,
               }}>
-              {profile.views}
+              {profile?.views}
             </Text>
             <Text
               style={{
@@ -97,7 +91,7 @@ const ProfileComponent = ({profile, currentUserId}) => {
                   ? colors_dark.textColor
                   : colors_light.textColor,
               }}>
-              {profile.subscribers}
+              {profile?.subscribers}
             </Text>
             <Text
               style={{
@@ -118,26 +112,30 @@ const ProfileComponent = ({profile, currentUserId}) => {
             fontSize: 18,
             fontWeight: 'bold',
           }}>
-          {profile.name}
+          {profile?.name}
         </Text>
-        <Text
-          style={{
-            color: isDarkMode ? colors_dark.textColor : colors_light.textColor,
-            fontSize: 13,
-            marginTop: 3,
-            marginRight: 20,
-          }}>
-          {profile.bio}
-        </Text>
+        {profile?.bio?.length > 0 && (
+          <Text
+            style={{
+              color: isDarkMode
+                ? colors_dark.textColor
+                : colors_light.textColor,
+              fontSize: 13,
+              marginTop: 3,
+              marginRight: 20,
+            }}>
+            {profile?.bio}
+          </Text>
+        )}
       </View>
       <TouchableHighlight
         underlayColor={'#98cbfa'}
         style={styles.editProfileButton}
         onPress={onButtonClick}>
         <Text style={styles.buttonText}>
-          {currentUserId === profile.objectId
+          {currentUserId === profile?.objectId
             ? strings_eng.editprofile
-            : subscribed
+            : profile?.subscribed
             ? strings_eng.unsubscribe
             : strings_eng.subscribe}
         </Text>

@@ -28,14 +28,14 @@ const EditProfileScreen = ({navigation}) => {
     navigation.goBack();
   };
 
-  const userId = useSelector(state => state.auth.currentUser.objectId);
+  const userId = useSelector(state => state.auth.currentUser?.objectId);
   const user = useSelector(state => state.user[userId]);
 
   const selectedFile = useRef('');
 
-  const [ppuri, setPpuri] = useState(user.profile_photo.url);
-  const [name, setName] = useState(user.name);
-  const [bio, setBio] = useState(user.bio);
+  const [ppuri, setPpuri] = useState(user?.profile_photo?.url);
+  const [name, setName] = useState(user?.name);
+  const [bio, setBio] = useState(user?.bio);
 
   const [loading, setLoading] = useState(false);
 
@@ -200,7 +200,7 @@ const EditProfileScreen = ({navigation}) => {
               />
             }
             style={{width: '95%', marginTop: 20}}
-            placeholder={strings_eng.name}
+            placeholder={strings_eng.bio}
             fontSize={16}
             textColor={
               isDarkMode ? colors_dark.textColor : colors_light.textColor

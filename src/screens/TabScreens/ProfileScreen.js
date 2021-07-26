@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableHighlight,
   Modal,
+  Pressable,
 } from 'react-native';
 import {colors_dark, colors_light} from '../../values/Colors';
 import {useSelector, useDispatch} from 'react-redux';
@@ -17,20 +18,59 @@ import GridItemProfile from '../../components/GridItemProfile';
 import {PostApi} from '../../api/Post';
 import {Constants} from '../../Helper/Constants';
 import AntDesign from 'react-native-vector-icons/dist/AntDesign';
-import PostRecyclerView from '../../components/PostRecyclerView';
+import Entypo from 'react-native-vector-icons/dist/Entypo';
 import ProgressBar from '../../components/ProgressBar';
+import Ionicons from 'react-native-vector-icons/dist/Ionicons';
+import {toastMessage} from '../../Helper/Functions';
+import {logoutAction} from '../../store/Auth/actions';
+import {CommonActions} from '@react-navigation/native';
 
 const ProfileScreen = ({route, navigation}) => {
   const isDarkMode = useColorScheme() === 'dark';
   const profileId =
     route?.params?.userId || store.getState().auth.currentUser.objectId;
+  const currentUserId = useSelector(state => state.auth.currentUser.objectId);
+  const dispatch = useDispatch();
+
+  const date = useRef({iso: ''});
+  const loading = useRef(false);
+  const hasMore = useRef(true);
+  const user = useSelector(state => state.user[profileId]);
 
   const [posts, setPosts] = useState([Constants.loadItem]);
-  const [visible, setVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+
   const onBackPress = () => {
+    if (profileId === store.getState().auth.currentUser.objectId) return;
     navigation.goBack();
+  };
+
+  const onItemDeleted = postId => {
+    setPosts(posts => posts.filter(item => item.objectId !== postId));
+  };
+
+  const onMenuPress = () => {
+    setIsMenuVisible(true);
+  };
+
+  const onLogout = () => {
+    //Logout
+    dispatch(logoutAction());
+    setIsMenuVisible(false);
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{name: 'Tabs'}],
+      }),
+    );
+  };
+
+  const onReport = () => {
+    //Report user
+    toastMessage('Reported');
+    setIsMenuVisible(false);
   };
 
   const onRefresh = () => {
@@ -39,22 +79,23 @@ const ProfileScreen = ({route, navigation}) => {
   };
 
   const onItemClick = () => {
-    setVisible(true);
+    navigation.push('ProfilePostsScreen', {
+      posts: posts,
+      getPosts: getPosts,
+      refreshing: refreshing,
+      onRefresh: onRefresh,
+      hasMore: hasMore,
+      username: user?.username,
+      onItemDeleted: onItemDeleted,
+    });
   };
-
-  const dispatch = useDispatch();
-
-  const date = useRef({iso: ''});
-  const loading = useRef(false);
-  const hasMore = useRef(true);
-  const currentUserId = useSelector(state => state.auth.currentUser.objectId);
-  const user = useSelector(state => state.user[profileId]);
 
   const getPosts = async (isRefresh = false) => {
     if (loading.current) return;
     loading.current = true;
+    if (!hasMore.current & !isRefresh) return;
     const result = await PostApi.getPostsByUser(
-      user.objectId,
+      user?.objectId,
       isRefresh ? '' : date.current.iso,
     );
     date.current = result.date;
@@ -96,6 +137,110 @@ const ProfileScreen = ({route, navigation}) => {
           ? colors_dark.backgroundColor
           : colors_light.backgroundColor,
       }}>
+      <Modal
+        style={{
+          flex: 1,
+        }}
+        transparent={true}
+        visible={isMenuVisible}
+        animationType="none"
+        onRequestClose={() => {
+          setIsMenuVisible(false);
+        }}>
+        <Pressable
+          onPress={() => {
+            setIsMenuVisible(false);
+          }}
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            flex: 1,
+            backgroundColor: '#00000066',
+          }}>
+          <View
+            onPress={null}
+            style={{
+              width: '90%',
+              backgroundColor: isDarkMode
+                ? colors_dark.colorPrimary
+                : colors_light.colorPrimary,
+            }}>
+            {user?.objectId !== currentUserId && (
+              <TouchableHighlight
+                style={{
+                  height: 50,
+                  margin: 5,
+                  width: '95%',
+                }}
+                underlayColor={
+                  isDarkMode
+                    ? colors_dark.rippleColor
+                    : colors_light.rippleColor
+                }
+                onPress={onReport}>
+                <View
+                  style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
+                  <Ionicons
+                    style={{marginLeft: 15}}
+                    name="alert-circle"
+                    size={28}
+                    color={
+                      isDarkMode
+                        ? colors_dark.textColor
+                        : colors_light.textColor
+                    }
+                  />
+                  <Text
+                    style={{
+                      marginLeft: 10,
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                      color: isDarkMode
+                        ? colors_dark.textColor
+                        : colors_light.textColor,
+                    }}>
+                    Report user
+                  </Text>
+                </View>
+              </TouchableHighlight>
+            )}
+            {user?.objectId === currentUserId && (
+              <TouchableHighlight
+                style={{
+                  height: 50,
+                  margin: 5,
+                  width: '95%',
+                }}
+                underlayColor={
+                  isDarkMode
+                    ? colors_dark.rippleColor
+                    : colors_light.rippleColor
+                }
+                onPress={onLogout}>
+                <View
+                  style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
+                  <Ionicons
+                    style={{marginLeft: 15}}
+                    name="md-exit"
+                    size={28}
+                    color={'#ff2b2b'}
+                  />
+                  <Text
+                    style={{
+                      marginLeft: 10,
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                      color: '#ff2b2b',
+                    }}>
+                    Logout
+                  </Text>
+                </View>
+              </TouchableHighlight>
+            )}
+          </View>
+        </Pressable>
+      </Modal>
+
       <View
         style={{
           backgroundColor: isDarkMode
@@ -107,7 +252,7 @@ const ProfileScreen = ({route, navigation}) => {
           alignItems: 'center',
           flexDirection: 'row',
         }}>
-        {user.objectId !== currentUserId && (
+        {user?.objectId !== currentUserId && (
           <TouchableHighlight
             onPress={onBackPress}
             style={{
@@ -135,38 +280,39 @@ const ProfileScreen = ({route, navigation}) => {
           </TouchableHighlight>
         )}
 
+        <TouchableHighlight
+          onPress={onMenuPress}
+          style={{
+            backgroundColor: isDarkMode
+              ? colors_dark.colorPrimary
+              : colors_light.colorPrimary,
+            height: 50,
+            justifyContent: 'center',
+            position: 'absolute',
+            marginStart: 20,
+            top: 0,
+            right: 0,
+            width: 50,
+          }}
+          underlayColor={
+            isDarkMode ? colors_dark.colorPrimary : colors_light.colorPrimary
+          }>
+          <Entypo
+            name="menu"
+            size={28}
+            color={isDarkMode ? colors_dark.textColor : colors_light.textColor}
+          />
+        </TouchableHighlight>
         <Text
           style={{
             fontWeight: 'bold',
             fontSize: 16,
             color: isDarkMode ? colors_dark.textColor : colors_light.textColor,
           }}>
-          {'@' + user.username}
+          {'@' + user?.username}
         </Text>
       </View>
-      <Modal
-        animationType="none"
-        visible={visible}
-        onRequestClose={() => {
-          setVisible(visible => !visible);
-        }}>
-        <View
-          style={{
-            backgroundColor: isDarkMode
-              ? colors_dark.backgroundColor
-              : colors_light.backgroundColor,
-            flex: 1,
-          }}>
-          <PostRecyclerView
-            style={{flex: 1}}
-            posts={posts}
-            onRefresh={onRefresh}
-            refreshing={refreshing}
-            hasMore={hasMore}
-            onEndReached={getPosts}
-          />
-        </View>
-      </Modal>
+
       <FlatList
         style={{flex: 1}}
         data={posts}

@@ -5,13 +5,14 @@ import FastImage from 'react-native-fast-image';
 import {useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/core';
 
-const Comment = ({comment}) => {
+const Comment = ({item}) => {
   const isDarkMode = useColorScheme() === 'dark';
+  const comment = useSelector(state => state.comment[item.objectId]);
   const user = useSelector(state => state.user[comment.user]);
   const navigation = useNavigation();
 
   const onProfileClick = () => {
-    navigation.push('Profile', {userId: user.objectId});
+    navigation.push('Profile', {userId: user?.objectId});
   };
 
   return (
@@ -60,7 +61,7 @@ const Comment = ({comment}) => {
               marginLeft: 5,
               color: colors_light.neutralColor,
             }}>
-            @{user.username}
+            @{user?.username}
           </Text>
         </View>
         <Text

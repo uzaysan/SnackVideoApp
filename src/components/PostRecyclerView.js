@@ -18,6 +18,7 @@ const PostRecyclerView = ({
   refreshing,
   onEndReached,
   hasMore,
+  onItemDeleted,
 }) => {
   const [dataProvider, setDataProvider] = useState(
     new DataProvider((r1, r2) => {
@@ -45,7 +46,7 @@ const PostRecyclerView = ({
   const rowRenderer = (type, data) => {
     switch (type) {
       case ViewTypes.TYPE_VIDEO:
-        return <Post item={data} />;
+        return <Post item={data} onItemDeleted={onItemDeleted} />;
       case ViewTypes.TYPE_LOAD:
         return <ProgressBar />;
       default:

@@ -14,18 +14,23 @@ import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import {useSelector, useDispatch} from 'react-redux';
 import {PostApi} from '../api/Post';
 import {addUsers} from '../store/User/action';
+import {addComments} from '../store/Comment/action';
 import Comment from '../components/Comment';
 import ProgressBar from '../components/ProgressBar';
 import {Constants} from '../Helper/Constants';
+import Post from '../components/Post';
 
 const CommentsScreen = ({navigation, route}) => {
   const isDarkMode = useColorScheme() === 'dark';
   const dispatch = useDispatch();
   const [commentText, setCommentText] = useState('');
-  const [comments, setComments] = useState([Constants.loadItem]);
+  const [comments, setComments] = useState([
+    route?.params?.post,
+    Constants.loadItem,
+  ]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const currentUser = useSelector(state => state.auth.currentUser.objectId);
+  const currentUser = useSelector(state => state.auth.currentUser?.objectId);
   const postId = route?.params?.post?.objectId;
 
   const date = useRef({iso: ''});
@@ -35,6 +40,10 @@ const CommentsScreen = ({navigation, route}) => {
   const onRefresh = () => {
     setRefreshing(true);
     getComments(true);
+  };
+
+  const onItemDeleted = () => {
+    navigation.goBack();
   };
 
   const getComments = async (isRefresh = false) => {
@@ -47,21 +56,24 @@ const CommentsScreen = ({navigation, route}) => {
     date.current = result.date;
     hasMore.current = result.hasMore;
     const userList = [];
+    const forList = [];
 
     for (const comment of result.comments) {
       userList.push({...comment.user});
       comment.user = comment.user.objectId;
+      forList.push({type: 'Comment', objectId: comment.objectId});
     }
+    dispatch(addComments(result.comments));
     dispatch(addUsers(userList));
     setComments(comments => {
-      if (isRefresh) return result.comments;
+      if (isRefresh) return [route?.params?.post, ...forList];
       if (
         comments.length > 0 &&
-        comments[comments.length - 1].type === 'Load'
+        comments[comments.length - 1].type === Constants.loadItem.type
       ) {
         comments.splice(comments.length - 1, 1);
       }
-      comments = comments.concat(result.comments);
+      comments = comments.concat(forList);
       if (result.hasMore) comments.push(Constants.loadItem);
       return comments;
     });
@@ -75,13 +87,18 @@ const CommentsScreen = ({navigation, route}) => {
 
   const onSendButtonClick = () => {
     PostApi.commentToPost(postId, commentText);
-    const newComment = {
-      user: currentUser,
-      comment: commentText,
-      createdAt: new Date(),
-      objectId: Math.random().toString(),
-    };
-    setComments(pre => [newComment, ...pre]);
+    const id = Math.random().toString();
+    dispatch(
+      addComments([
+        {
+          user: currentUser,
+          comment: commentText,
+          createdAt: new Date(),
+          objectId: id,
+        },
+      ]),
+    );
+    setComments(pre => [...pre, {type: 'Comment', objectId: id}]);
     setCommentText('');
   };
   const onBackPress = () => {
@@ -142,7 +159,7 @@ const CommentsScreen = ({navigation, route}) => {
       <FlatList
         style={{flex: 1}}
         data={comments}
-        contentContainerStyle={{marginTop: 3, marginBottom: 3}}
+        contentContainerStyle={{marginTop: 3, paddingBottom: 6}}
         initialNumToRender={20}
         keyExtractor={item => item.objectId}
         maxToRenderPerBatch={10}
@@ -151,7 +168,15 @@ const CommentsScreen = ({navigation, route}) => {
         windowSize={10}
         renderItem={({item, index}) => {
           if (item.type === 'Load') return <ProgressBar />;
-          return <Comment comment={item} />;
+          else if (item.type === 'Post')
+            return (
+              <Post
+                item={item}
+                onItemDeleted={onItemDeleted}
+                isComments={true}
+              />
+            );
+          return <Comment item={item} />;
         }}
       />
       <View

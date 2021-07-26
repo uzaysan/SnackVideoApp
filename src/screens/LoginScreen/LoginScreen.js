@@ -4,6 +4,7 @@ import {colors_dark, colors_light} from '../../values/Colors';
 import {strings_eng} from '../../values/Strings';
 import EditTextWithIcon from './EditTextWithIcon';
 import Ionicon from 'react-native-vector-icons/dist/Ionicons';
+import Entypo from 'react-native-vector-icons/dist/Entypo';
 import ButtonWithProgress from './ButtonWithProgress';
 import {UserApi} from '../../api/User';
 import {useDispatch} from 'react-redux';
@@ -35,9 +36,10 @@ const LoginScreen = ({navigation}) => {
   const login = async () => {
     setLoading(true);
     const user = await UserApi.login(username, password);
+    console.log(JSON.stringify(user));
     if (user.error || !user.sessionToken) {
       setLoading(false);
-      toastMessage(strings_eng.error);
+      toastMessage(JSON.stringify(user.error));
       return;
     }
 
@@ -51,6 +53,10 @@ const LoginScreen = ({navigation}) => {
         routes: [{name: 'Tabs'}],
       }),
     );
+  };
+
+  const register = () => {
+    navigation.push('RegisterScreen');
   };
 
   return (
@@ -78,9 +84,9 @@ const LoginScreen = ({navigation}) => {
           borderRadius={15}
           icon={
             isDarkMode ? (
-              <Ionicon name="person" size={25} color="white" />
+              <Entypo name="email" size={25} color="white" />
             ) : (
-              <Ionicon name="person" size={25} color="black" />
+              <Entypo name="email" size={25} color="black" />
             )
           }
           style={{width: '95%', marginTop: 10}}
@@ -143,7 +149,7 @@ const LoginScreen = ({navigation}) => {
         <ButtonWithProgress
           style={{
             width: '95%',
-            height: 40,
+            height: 50,
             marginTop: 10,
             marginBottom: 10,
             borderRadius: 15,
@@ -152,7 +158,7 @@ const LoginScreen = ({navigation}) => {
             backgroundColor: colors_dark.blue,
           }}
           underlayColor={'#98cbfa'}
-          onPress={login}
+          onPress={register}
           textStyle={{
             color: 'white',
             fontWeight: 'bold',

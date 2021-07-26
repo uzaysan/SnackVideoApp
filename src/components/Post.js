@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import {getRelativeTime} from '../Helper/Functions';
+import {getRelativeTime, toastMessage} from '../Helper/Functions';
 import React, {useState, useEffect} from 'react';
 import {
   useColorScheme,
@@ -7,10 +7,14 @@ import {
   Text,
   TouchableHighlight,
   StyleSheet,
+  Modal,
+  Pressable,
 } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {useSelector, useDispatch} from 'react-redux';
 import {colors_dark, colors_light} from '../values/Colors';
+
+import {store} from '../store/store';
 
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import Entypo from 'react-native-vector-icons/dist/Entypo';
@@ -20,7 +24,7 @@ import MentionHashtagTextView from './MentionHashtagTextView';
 import VideoPlayer from './VideoPlayer';
 import {PostApi} from '../api/Post';
 
-const Post = ({item}) => {
+const Post = ({item, onItemDeleted, isComments = false}) => {
   const isDarkMode = useColorScheme() === 'dark';
   const dispatch = useDispatch();
   const iconColor = isDarkMode ? 'white' : 'black';
@@ -30,6 +34,7 @@ const Post = ({item}) => {
   const user = useSelector(state => state.user[post.user]);
 
   const [collapsed, setCollapsed] = useState(true);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
   //const [liked, setLiked] = useState(post.liked);
   const collapseExpandText = () => {
     if (collapsed) {
@@ -40,10 +45,11 @@ const Post = ({item}) => {
   };
 
   const onProfileClick = () => {
-    navigation.push('Profile', {userId: user.objectId});
+    navigation.push('Profile', {userId: user?.objectId});
   };
 
   const onCommentsClick = () => {
+    if (isComments) return;
     navigation.push('CommentsScreen', {post: item});
   };
 
@@ -53,9 +59,31 @@ const Post = ({item}) => {
     dispatch(likeToggle(post.objectId));
   };
 
+  const reportPost = () => {
+    PostApi.reportPost(post.objectId);
+    toastMessage('Post reported.');
+    setIsMenuVisible(false);
+  };
+
+  const deletePost = async () => {
+    setIsMenuVisible(false);
+    try {
+      await PostApi.deletePost(post.objectId);
+      toastMessage('Post deleted.');
+      onItemDeleted(post.objectId);
+    } catch (err) {
+      toastMessage('An error occured while deleting post.');
+      console.log(err);
+    }
+  };
+
   const mentionHashtagClick = text => {
-    if (text.startsWith('#')) navigation.navigate('Hashtag', {hashtag: text});
-    else navigation.navigate('GuestProfile', {username: text});
+    if (text.startsWith('#')) navigation.push('HashtagScreen', {hashtag: text});
+    else navigation.push('GuestProfile', {username: text});
+  };
+
+  const openMenu = () => {
+    setIsMenuVisible(true);
   };
 
   useEffect(() => {
@@ -65,6 +93,113 @@ const Post = ({item}) => {
 
   return (
     <View style={styles.main}>
+      <Modal
+        style={{
+          flex: 1,
+        }}
+        transparent={true}
+        visible={isMenuVisible}
+        animationType="none"
+        onRequestClose={() => {
+          setIsMenuVisible(false);
+        }}>
+        <Pressable
+          onPress={() => {
+            setIsMenuVisible(false);
+          }}
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            flex: 1,
+            backgroundColor: '#00000066',
+          }}>
+          <View
+            onPress={null}
+            style={{
+              width: '90%',
+              backgroundColor: isDarkMode
+                ? colors_dark.colorPrimary
+                : colors_light.colorPrimary,
+            }}>
+            {post.user === store.getState().auth.currentUser?.objectId && (
+              <TouchableHighlight
+                style={{
+                  height: 50,
+                  margin: 5,
+                  width: '95%',
+                }}
+                underlayColor={
+                  isDarkMode
+                    ? colors_dark.rippleColor
+                    : colors_light.rippleColor
+                }
+                onPress={deletePost}>
+                <View
+                  style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
+                  <Ionicons
+                    style={{marginLeft: 15}}
+                    name="trash"
+                    size={28}
+                    color={
+                      isDarkMode ? colors_dark.text : colors_light.textColor
+                    }
+                  />
+                  <Text
+                    style={{
+                      marginLeft: 10,
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                      color: isDarkMode
+                        ? colors_dark.textColor
+                        : colors_light.textColor,
+                    }}>
+                    Delete
+                  </Text>
+                </View>
+              </TouchableHighlight>
+            )}
+            {post.user !== store.getState().auth.currentUser?.objectId && (
+              <TouchableHighlight
+                style={{
+                  height: 50,
+                  margin: 5,
+                  width: '95%',
+                }}
+                underlayColor={
+                  isDarkMode
+                    ? colors_dark.rippleColor
+                    : colors_light.rippleColor
+                }
+                onPress={reportPost}>
+                <View
+                  style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
+                  <Ionicons
+                    style={{marginLeft: 15}}
+                    name="alert-circle"
+                    size={28}
+                    color={
+                      isDarkMode
+                        ? colors_dark.textColor
+                        : colors_light.textColor
+                    }
+                  />
+                  <Text
+                    style={{
+                      marginLeft: 10,
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                      color: isDarkMode
+                        ? colors_dark.textColor
+                        : colors_light.textColor,
+                    }}>
+                    Report
+                  </Text>
+                </View>
+              </TouchableHighlight>
+            )}
+          </View>
+        </Pressable>
+      </Modal>
       <View
         style={{
           width: '100%',
@@ -97,16 +232,14 @@ const Post = ({item}) => {
               {user.name}
             </Text>
             <Text onPress={onProfileClick} style={styles.usernameText}>
-              @{user.username}
+              @{user?.username}
             </Text>
           </View>
           <TouchableHighlight
             underlayColor={
               isDarkMode ? colors_dark.rippleColor : colors_light.rippleColor
             }
-            onPress={() => {
-              //showToastMessage("Deneme");
-            }}
+            onPress={openMenu}
             style={styles.postMenuTouchable}>
             <Entypo name="dots-three-horizontal" size={17} color={iconColor} />
           </TouchableHighlight>

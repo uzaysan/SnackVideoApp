@@ -8,6 +8,7 @@ export const strings_eng = {
   donthaveanaccount: 'Dont have an account?',
   home: 'Home',
   explore: 'Explore',
+  notification: 'Notification',
   profile: 'Profile',
   views: 'Views',
   subscribers: 'Subscribers',
@@ -19,4 +20,8 @@ export const strings_eng = {
   changephoto: 'Change photo',
   save: 'Save',
   error: 'Error',
+  bio: 'Biography',
+  likedyourvideo: 'liked your video.',
+  subscribedtoyou: 'subscribed to you.',
+  commentedtoyourvideo: 'commented to your video',
 };

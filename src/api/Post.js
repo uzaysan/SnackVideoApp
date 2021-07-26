@@ -3,25 +3,18 @@ import {store} from '../store/store';
 
 const getHomeObjects = async date => {
   const sessionToken = store.getState().auth.currentUser.sessionToken;
-  if (!sessionToken) return {error: 'session token is needed'};
-  try {
-    let result = await fetch(
-      `${BASE_URL}functions/getHomeObjects?date=${date}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Parse-Application-Id': PARSE_APP_ID,
-          'X-Parse-REST-API-Key': PARSE_REST_KEY,
-          'X-Parse-Session-Token': sessionToken,
-        },
-      },
-    );
-    result = await result.json();
-    return result.result;
-  } catch (err) {
-    return {error: err};
-  }
+  if (!sessionToken) throw 'session token is needed';
+  let result = await fetch(`${BASE_URL}functions/getHomeObjects?date=${date}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Parse-Application-Id': PARSE_APP_ID,
+      'X-Parse-REST-API-Key': PARSE_REST_KEY,
+      'X-Parse-Session-Token': sessionToken,
+    },
+  });
+  result = await result.json();
+  return result.result;
 };
 
 const likeToggle = postId => {
@@ -126,23 +119,70 @@ const commentToPost = (postId, comment) => {
 const getComments = (postId, date) => {
   const sessionToken = store.getState().auth.currentUser.sessionToken;
   if (!sessionToken) return {posts: [], date: {iso: ''}, hasMore: true};
-  return fetch(
-    `${BASE_URL}functions/getComments?postId=${postId}&date=${date}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Parse-Application-Id': PARSE_APP_ID,
-        'X-Parse-REST-API-Key': PARSE_REST_KEY,
-        'X-Parse-Session-Token': sessionToken,
-      },
+  return fetch(`${BASE_URL}functions/getComments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Parse-Application-Id': PARSE_APP_ID,
+      'X-Parse-REST-API-Key': PARSE_REST_KEY,
+      'X-Parse-Session-Token': sessionToken,
     },
-  )
+    body: JSON.stringify({postId: postId, date: date}),
+  })
     .then(response => response.json())
     .then(response => response.result)
     .catch(err => {
       throw err;
     });
+};
+
+const getPostsByWord = async (date, word) => {
+  const sessionToken = store.getState().auth.currentUser.sessionToken;
+  if (!sessionToken) throw 'session token is needed';
+  let result = await fetch(`${BASE_URL}functions/getPostsByWords`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Parse-Application-Id': PARSE_APP_ID,
+      'X-Parse-REST-API-Key': PARSE_REST_KEY,
+      'X-Parse-Session-Token': sessionToken,
+    },
+    body: JSON.stringify({date: date, word: word}),
+  });
+  result = await result.json();
+  return result.result;
+};
+
+const reportPost = postId => {
+  const sessionToken = store.getState().auth.currentUser.sessionToken;
+  if (!sessionToken) return;
+  return fetch(`${BASE_URL}functions/reportPost?postId=${postId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Parse-Application-Id': PARSE_APP_ID,
+      'X-Parse-REST-API-Key': PARSE_REST_KEY,
+      'X-Parse-Session-Token': sessionToken,
+    },
+  })
+    .then(response => response)
+    .catch(err => {
+      throw err;
+    });
+};
+
+const deletePost = async postId => {
+  const sessionToken = store.getState().auth.currentUser.sessionToken;
+  if (!sessionToken) throw 'session token is needed';
+  return await fetch(`${BASE_URL}functions/deletePost?postId=${postId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Parse-Application-Id': PARSE_APP_ID,
+      'X-Parse-REST-API-Key': PARSE_REST_KEY,
+      'X-Parse-Session-Token': sessionToken,
+    },
+  });
 };
 
 export const PostApi = {
@@ -153,4 +193,7 @@ export const PostApi = {
   commentToPost: commentToPost,
   getComments: getComments,
   incrementView: incrementView,
+  getPostsByWord: getPostsByWord,
+  reportPost: reportPost,
+  deletePost: deletePost,
 };

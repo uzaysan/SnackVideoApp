@@ -10,14 +10,14 @@ export const userReducer = (state = INITIAL_STATE, action) => {
     }
     return {...newUserTree};
   } else if (action.type === TYPE_SUBSCRIBE_TOGGLE) {
-    const newUserTree = {...state};
-
-    newUserTree[action.payload].subscribed =
-      !newUserTree[action.payload].subscribed;
-    if (newUserTree[action.payload].subscribed)
-      newUserTree[action.payload].subscribers++;
-    else newUserTree[action.payload].subscribers--;
-    return {...newUserTree};
+    const user = {
+      ...state[action.payload],
+      subscribed: state[action.payload].subscribed ? false : true,
+      subscribers: state[action.payload].subscribed
+        ? state[action.payload].subscribers - 1
+        : state[action.payload].subscribers + 1,
+    };
+    return {...state, [action.payload]: user};
   } else {
     return state;
   }

@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {View, useColorScheme, Text} from 'react-native';
 import {colors_dark, colors_light} from '../../values/Colors';
 import {strings_eng} from '../../values/Strings';
-import {useSelector, useDispatch} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import PostRecyclerView from '../../components/PostRecyclerView';
 import {PostApi} from '../../api/Post';
 import {addPosts} from '../../store/Post/action';
@@ -25,37 +25,44 @@ const HomeScreen = props => {
     getPosts(true);
   };
 
+  const onItemDeleted = postId => {
+    setPosts(posts => posts.filter(item => item.objectId !== postId));
+  };
+
   const getPosts = async (isRefresh = false) => {
     if (loading.current) return;
     loading.current = true;
-    const result = await PostApi.getHomeObjects(date.current.iso);
-    if (result.error) {
+    if (!hasMore.current && !isRefresh) return;
+    try {
+      const result = await PostApi.getHomeObjects(
+        isRefresh ? '' : date.current.iso,
+      );
+      date.current = result.date;
+      hasMore.current = result.hasMore;
+      const userList = [];
+      const postList = [];
+      const forList = [];
+      for (const post of result.posts) {
+        forList.push({type: 'Post', objectId: post.objectId});
+        userList.push({...post.user});
+        post.user = post.user.objectId;
+        postList.push(post);
+      }
+      dispatch(addUsers(userList));
+      dispatch(addPosts(postList));
+      setPosts(posts => {
+        if (isRefresh) return forList;
+        return posts.concat(forList);
+      });
+      setRefreshing(false);
+      loading.current = false;
+    } catch (err) {
       console.log(JSON.stringify(result.error));
       setRefreshing(false);
       hasMore.current = true;
       loading.current = false;
       toastMessage(strings_eng.error);
-      return;
     }
-    date.current = result.date;
-    hasMore.current = result.hasMore;
-    const userList = [];
-    const postList = [];
-    const forList = [];
-    for (const post of result.posts) {
-      forList.push({type: 'Post', objectId: post.objectId});
-      userList.push({...post.user});
-      post.user = post.user.objectId;
-      postList.push(post);
-    }
-    dispatch(addUsers(userList));
-    dispatch(addPosts(postList));
-    setPosts(posts => {
-      if (isRefresh) return forList;
-      return posts.concat(forList);
-    });
-    setRefreshing(false);
-    loading.current = false;
   };
 
   useEffect(() => {
@@ -95,6 +102,7 @@ const HomeScreen = props => {
         onRefresh={onRefresh}
         refreshing={refreshing}
         onEndReached={getPosts}
+        onItemDeleted={onItemDeleted}
         hasMore={hasMore}
       />
     </View>

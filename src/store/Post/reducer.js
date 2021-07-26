@@ -1,4 +1,3 @@
-import {arrangeItemsToGrid} from '../../Helper/Functions';
 import {TYPE_ADD_POSTS, TYPE_LIKE_TOGGLE} from './action';
 
 const INITIAL_STATE = {};
