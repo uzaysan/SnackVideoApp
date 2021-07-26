@@ -6,9 +6,10 @@
 
 - Made with react native cli.
 - Auto play videos when visible.
+- Supports both light and dark theme.
 - Used redux as state managment tool.
 - Used RecyclerListView for smooth scrolling or videos.
-- Navigation handled by using react navigation
+- Navigation handled by react navigation
 - No additional library is used for HTTP calls, Handled all with fetch.
 - Implemented parse server for the backend.
 
