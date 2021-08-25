@@ -1,7 +1,6 @@
 # Snack Video App
-
-### Simple video sharing app similar to instagram and tiktok made with react native
-# There is an APK file at releases. You can try the app if you want.
+## Simple video sharing app similar to instagram and tiktok made with react native
+### There is an APK file at releases. You can try the app if you want.
 
 ## Features
 
