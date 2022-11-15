@@ -13,5 +13,5 @@
 - No additional library is used for HTTP calls, Handled all with fetch.
 - Implemented parse server for the backend.
 
-![Screenshot](https://raw.githubusercontent.com/uzaysan/SnackVideoApp/main/screenshots/photo_2021-07-26_15-21-35.jpg)
-![Screenshot](https://raw.githubusercontent.com/uzaysan/SnackVideoApp/main/screenshots/photo_2021-07-26_15-21-21.jpg)
+![Screenshot](https://raw.githubusercontent.com/zovifan/SnackVideoApp/main/screenshots/photo_2021-07-26_15-21-35.jpg)
+![Screenshot](https://raw.githubusercontent.com/zovifan/SnackVideoApp/main/screenshots/photo_2021-07-26_15-21-21.jpg)
